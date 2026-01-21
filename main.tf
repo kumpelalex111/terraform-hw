@@ -19,7 +19,7 @@ resource "random_password" "random_string" {
 }
 */
 
-
+/*
 resource "docker_image" "nginx" {
   name         = "nginx:latest"
   keep_locally = true
@@ -34,6 +34,7 @@ resource "docker_container" "nginx1" {
     external = 9090
   }
 }
+*/
 
 resource "docker_image" "mysql" {
   name         = "mysql:8"
@@ -43,9 +44,6 @@ resource "docker_image" "mysql" {
 resource "docker_container" "mysql_1" {
   image = docker_image.mysql.image_id
   name  = "mysql_1"
-  env {
-    MYSQL_ROOT_PASSWORD = "${random_password.mysql_root_password.result}"
-  }
   ports {
     internal = 3306
     external = 3306
