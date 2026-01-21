@@ -1,0 +1,9 @@
+#cloud-config
+users:
+  - name: alex
+    groups: sudo
+    shell: /bin/bash
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    ssh-authorized-keys:
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAD4NWSjViP3GwlG6xvTlNt8LihsJauyRG/JXSSop+Vy alex@test3
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINpzEvFxZtstsQwzFKqd8Yxho0N0vyRvFvPkXJP6A1u6 alex@test3 
