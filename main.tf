@@ -1,63 +1,76 @@
-/*
-terraform {
-  required_providers {
-    docker = {
-      source  = "kreuzwerker/docker"
+resource "yandex_vpc_network" "develop" {
+  name = var.vpc_name
+}
+resource "yandex_vpc_subnet" "develop" {
+  name           = var.vpc_name
+  zone           = var.default_zone
+  network_id     = yandex_vpc_network.develop.id
+  v4_cidr_blocks = var.default_cidr
+}
+
+resource "yandex_vpc_subnet" "subnet_develop-b" {
+  name           = "subnet_develop-b"
+  zone           = "ru-central1-b"
+  network_id     = yandex_vpc_network.develop.id
+  v4_cidr_blocks = var.default_cidr-b
+}
+
+
+data "yandex_compute_image" "ubuntu" {
+  family = var.vm_web_family
+}
+resource "yandex_compute_instance" "platform" {
+  name        = local.vm_web
+  platform_id = var.vm_web_platform_id
+  resources {
+    cores         = var.vms_resources.web.cores
+    memory        = var.vms_resources.web.memory
+    core_fraction = var.vms_resources.web.core_fraction
+  }
+  boot_disk {
+    initialize_params {
+      image_id = data.yandex_compute_image.ubuntu.image_id
     }
   }
-  required_version = ">=1.12.0"  
-}
-provider "docker" {}
+  scheduling_policy {
+    preemptible = true
+  }
+  network_interface {
+    subnet_id = yandex_vpc_subnet.develop.id
+    nat       = true
+  }
 
+  metadata = {
+    serial-port-enable = var.vms_metadada.ubuntu.serial-port-enable
+    ssh-keys           = var.vms_metadada.ubuntu.ssh-keys
+  }
 
-resource "random_password" "random_string" {
-  length      = 16
-  special     = false
-  min_upper   = 1
-  min_lower   = 1
-  min_numeric = 1
-}
-*/
-
-/*
-resource "docker_image" "nginx" {
-  name         = "nginx:latest"
-  keep_locally = true
 }
 
-resource "docker_container" "nginx1" {
-  image = docker_image.nginx.image_id
-  name  = "hello_world"
 
-  ports {
-    internal = 80
-    external = 9090
+resource "yandex_compute_instance" "netology-develop-platform-db" {
+  name        = local.vm_db
+  platform_id = var.vm_db_platform_id
+  resources {
+    cores         = var.vms_resources.db.cores
+    memory        = var.vms_resources.db.memory
+    core_fraction = var.vms_resources.db.core_fraction
+  }
+  boot_disk {
+    initialize_params {
+      image_id = data.yandex_compute_image.ubuntu.image_id
+    }
+  }
+  scheduling_policy {
+    preemptible = true
+  }
+  network_interface {
+    subnet_id = yandex_vpc_subnet.develop.id
+    nat       = true
+  }
+
+  metadata = {
+    serial-port-enable = var.vms_metadada.ubuntu.serial-port-enable
+    ssh-keys           = var.vms_metadada.ubuntu.ssh-keys
   }
 }
-*/
-
-resource "docker_image" "mysql" {
-  name         = "mysql:8"
-  keep_locally = true
-}
-
-resource "docker_container" "mysql_1" {
-  image = docker_image.mysql.image_id
-  name  = "mysql_1"
-  ports {
-    internal = 3306
-    external = 3306
-  }
-}
-
-
-resource "random_password" "mysql_root_password" {
-  length      = 16
-  special     = false
-  min_upper   = 1
-  min_lower   = 1
-  min_numeric = 1
-}
-
-
-
